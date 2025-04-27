@@ -1,5 +1,5 @@
 import pygame
-from castle.bullet import Bullet
+from bullet import Bullet
 
 class Player:
     def __init__(self, x, y, tile_size, color=(255, 0, 0)):

@@ -1,11 +1,11 @@
 import pygame
 import sys
 import os
-from castle.map import Map, TileKind
-from castle.soldier import Player
-from castle.enemies import Enemy
-from castle.collision import check_collision_with_enemies
-from castle.diamonds import Diamond, generate_diamonds
+from map import Map, TileKind
+from soldier import Player
+from enemies import Enemy
+from collision import check_collision_with_enemies
+from diamonds import Diamond, generate_diamonds
 
 def main():
     # Initialisation Pygame
@@ -42,7 +42,7 @@ def main():
         sys.exit()
 
     # Initialisation des entités
-    player = Player(1 * tile_size, 1 * tile_size, tile_size)
+    player = Player(game_map.start_pos[0], game_map.start_pos[1], tile_size)
     enemies = [
         Enemy(5 * tile_size, 3 * tile_size, tile_size, game_map),
         Enemy(8 * tile_size, 7 * tile_size, tile_size, game_map),
@@ -109,6 +109,14 @@ def main():
                         score += 10
                         diamonds.remove(diamond)  # Retire immédiatement le diamant
 
+            tile_x = player.hitbox.centerx // tile_size
+            tile_y = player.hitbox.centery // tile_size
+            if (0 <= tile_y < len(game_map.tiles) and 
+                0 <= tile_x < len(game_map.tiles[0])):
+                if game_map.tiles[tile_y][tile_x] == 3:  # End tile
+                    game_won = True
+                    game_state = GAME_OVER
+
         # Rendu
         screen.fill((0, 0, 0))  # Fond noir
         game_map.draw(screen)
@@ -131,7 +139,10 @@ def main():
         
         # Afficher le message de fin de jeu
         if game_state == GAME_OVER:
-            game_over_text = font.render("GAME OVER - Press R to restart", True, (255, 0, 0))
+            if game_won:
+                game_over_text = font.render("YOU WIN! Press R to restart", True, (0, 255, 0))
+            else:
+                game_over_text = font.render("GAME OVER - Press R to restart", True, (255, 0, 0))
             screen.blit(game_over_text, (screen_width//2 - 180, screen_height//2 - 18))
         
         pygame.display.flip()
